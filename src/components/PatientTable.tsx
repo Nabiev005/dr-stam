@@ -115,7 +115,8 @@ export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) 
           </thead>
           <tbody>
             {patients.map((p, index) => (
-              <tr key={p.id || index}>
+              /* Эгер id жок болсо index колдонобуз, бирок мүмкүн болсо p.id колдонуңуз */
+              <tr key={index}>
                 <Td><strong>{p.name}</strong></Td>
                 <Td>{p.phone}</Td>
                 <Td>{p.tooth}</Td>
@@ -131,7 +132,7 @@ export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) 
                   <ActionButton onClick={() => onEdit(p)}>
                     <IoPencilOutline size={16} />
                   </ActionButton>
-                  <ActionButton className="delete" onClick={() => p.id && onDelete(p.id)}>
+                  <ActionButton className="delete" onClick={() => onDelete(p.id || String(index))}>
                     <IoTrashOutline size={16} />
                   </ActionButton>
                 </Td>
