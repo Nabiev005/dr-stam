@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { IoAlertCircle, IoCheckmarkDone, IoWallet, IoPerson } from 'react-icons/io5';
+import { IoCheckmarkDone, IoWallet } from 'react-icons/io5';
 import { type PatientData } from '../types';
 
 const PageWrapper = styled.div` padding: 30px; max-width: 800px; margin: auto; `;
