@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
-import { db } from "./firebase"; // Жаңы түзүлгөн firebase.ts файлын импорттоо
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { db } from "./firebase";
 
 import { Sidebar } from './components/Sidebar';
 import { PatientsPage } from './pages/PatientsPage';
@@ -60,6 +60,20 @@ export function App() {
     }
   };
 
+  // 4. Бейтапты жаңыртуу (Update)
+  const handleUpdatePatient = async (updatedPatient: PatientData) => {
+    try {
+      if (!updatedPatient.id) return;
+      const patientDoc = doc(db, "patients", updatedPatient.id);
+      await updateDoc(patientDoc, { ...updatedPatient });
+      
+      setPatients(prev => prev.map(p => p.id === updatedPatient.id ? updatedPatient : p));
+      alert("Бейтаптын маалыматы ийгиликтүү жаңыланды!");
+    } catch (error) {
+      console.error("Жаңыртууда ката кетти: ", error);
+    }
+  };
+
   return (
     <Router>
       <Container>
@@ -73,6 +87,7 @@ export function App() {
                 patients={patients} 
                 onAdd={handleAddPatient} 
                 onDelete={handleDeletePatient} 
+                onUpdate={handleUpdatePatient}
               />
             } />
 

@@ -15,10 +15,7 @@ const StatsHeader = styled.div`
   gap: 15px;
 `;
 
-const Controls = styled.div`
-  display: flex;
-  gap: 10px;
-`;
+const Controls = styled.div` display: flex; gap: 10px; `;
 
 const SearchInput = styled.input`
   padding: 10px;
@@ -41,13 +38,14 @@ interface PatientsPageProps {
   patients: PatientData[];
   onAdd: (data: PatientData) => void;
   onDelete: (id: string) => void;
+  onUpdate: (data: PatientData) => void; // Жаңы: жаңыртуу үчүн
 }
 
-export const PatientsPage = ({ patients, onAdd, onDelete }: PatientsPageProps) => {
+export const PatientsPage = ({ patients, onAdd, onDelete, onUpdate }: PatientsPageProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showOnlyDebt, setShowOnlyDebt] = useState(false);
+  const [editingPatient, setEditingPatient] = useState<PatientData | null>(null);
 
-  // Фильтрлөө логикасы
   const filteredPatients = patients.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           p.phone.includes(searchTerm);
@@ -64,17 +62,24 @@ export const PatientsPage = ({ patients, onAdd, onDelete }: PatientsPageProps) =
             placeholder="Издөө (Аты же номери...)" 
             onChange={(e) => setSearchTerm(e.target.value)} 
           />
-          <FilterButton 
-            active={showOnlyDebt} 
-            onClick={() => setShowOnlyDebt(!showOnlyDebt)}
-          >
+          <FilterButton active={showOnlyDebt} onClick={() => setShowOnlyDebt(!showOnlyDebt)}>
             {showOnlyDebt ? 'Бардыгы' : 'Карызы барлар'}
           </FilterButton>
         </Controls>
       </StatsHeader>
       
-      <PatientForm onAdd={onAdd} />
-      <PatientTable patients={filteredPatients} onDelete={onDelete} />
+      <PatientForm 
+        onAdd={onAdd} 
+        onUpdate={onUpdate} 
+        initialData={editingPatient} 
+        onClearEdit={() => setEditingPatient(null)} 
+      />
+      
+      <PatientTable 
+        patients={filteredPatients} 
+        onDelete={onDelete} 
+        onEdit={(p) => setEditingPatient(p)} 
+      />
     </PageWrapper>
   );
 };

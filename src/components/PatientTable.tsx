@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { IoPencilOutline, IoTrashOutline, IoDownloadOutline } from 'react-icons/io5';
 import * as XLSX from 'xlsx';
-import type { PatientData } from './PatientForm';
+import { PatientData } from './PatientForm';
 
 const TableWrapper = styled.div`
   background: white;
@@ -79,11 +79,11 @@ const EmptyState = styled.div`
 interface PatientTableProps {
   patients: PatientData[];
   onDelete: (id: string) => void;
+  onEdit: (patient: PatientData) => void; // onEdit пропсун коштук
 }
 
-export const PatientTable = ({ patients, onDelete }: PatientTableProps) => {
+export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) => {
   
-  // Excelге экспорттоо функциясы
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(patients);
     const workbook = XLSX.utils.book_new();
@@ -128,7 +128,8 @@ export const PatientTable = ({ patients, onDelete }: PatientTableProps) => {
                   </DebtCell>
                 </Td>
                 <Td>
-                  <ActionButton onClick={() => alert("Түзөтүү функциясы")}>
+                  {/* Түзөтүү функциясы иштетилди */}
+                  <ActionButton onClick={() => onEdit(p)}>
                     <IoPencilOutline size={16} />
                   </ActionButton>
                   <ActionButton className="delete" onClick={() => onDelete(p.id!)}>

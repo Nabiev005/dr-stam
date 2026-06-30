@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { type PatientData } from '../types';
 
 const FormWrapper = styled.div`
   background: white;
@@ -23,8 +24,8 @@ const Input = styled.input`
   &:focus { outline: none; border-color: #10b981; }
 `;
 
-const AddButton = styled.button`
-  background: #10b981;
+const AddButton = styled.button<{ isEdit?: boolean }>`
+  background: ${props => props.isEdit ? '#f59e0b' : '#10b981'};
   color: white;
   border: none;
   padding: 10px;
@@ -32,29 +33,37 @@ const AddButton = styled.button`
   cursor: pointer;
   font-weight: bold;
   transition: 0.2s;
-  &:hover { background: #059669; }
+  &:hover { background: ${props => props.isEdit ? '#d97706' : '#059669'}; }
 `;
 
-export interface PatientData {
-  id?: string;
-  name: string;
-  phone: string;
-  tooth: string;
-  service: string;
-  price: number;
-  paid: number;
-  date: string;
-  appointmentDate?: string | Date; // Календар үчүн кошулду
-}
+const CancelButton = styled.button`
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+`;
 
 interface PatientFormProps {
   onAdd: (data: PatientData) => void;
+  onUpdate: (data: PatientData) => void;
+  initialData?: PatientData | null;
+  onClearEdit?: () => void;
 }
 
-export const PatientForm = ({ onAdd }: PatientFormProps) => {
+export const PatientForm = ({ onAdd, onUpdate, initialData, onClearEdit }: PatientFormProps) => {
   const [formData, setFormData] = useState<PatientData>({
     name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentDate: ''
   });
+
+  // Эгер initialData келсе, форманы толтурабыз
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -67,10 +76,12 @@ export const PatientForm = ({ onAdd }: PatientFormProps) => {
   const handleSubmit = () => {
     if (!formData.name) return alert("Аты-жөнүн жазыңыз!");
     
-    onAdd({
-      ...formData,
-      appointmentDate: formData.date // Формадагы датаны календар үчүн колдонобуз
-    });
+    if (initialData && onUpdate) {
+      onUpdate(formData);
+      if (onClearEdit) onClearEdit();
+    } else {
+      onAdd(formData);
+    }
     
     // Форманы тазалоо
     setFormData({ name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentDate: '' });
@@ -83,29 +94,16 @@ export const PatientForm = ({ onAdd }: PatientFormProps) => {
       <Input name="tooth" value={formData.tooth} onChange={handleChange} placeholder="Тиш номери" />
       <Input name="service" value={formData.service} onChange={handleChange} placeholder="Дарылоо себеби" />
       
-      <Input 
-        name="price" 
-        type="number" 
-        value={formData.price === 0 ? '' : formData.price} 
-        onChange={handleChange} 
-        placeholder="Жалпы баасы (сом)" 
-      />
-      <Input 
-        name="paid" 
-        type="number" 
-        value={formData.paid === 0 ? '' : formData.paid} 
-        onChange={handleChange} 
-        placeholder="Төлөнгөн сумма (сом)" 
-      />
+      <Input name="price" type="number" value={formData.price || ''} onChange={handleChange} placeholder="Жалпы баасы" />
+      <Input name="paid" type="number" value={formData.paid || ''} onChange={handleChange} placeholder="Төлөнгөн сумма" />
+      <Input name="date" type="date" value={formData.date} onChange={handleChange} />
       
-      <Input 
-        name="date" 
-        type="date" 
-        value={formData.date} 
-        onChange={handleChange} 
-      />
-      
-      <AddButton onClick={handleSubmit}>+ Бейтапты базага каттоо</AddButton>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <AddButton isEdit={!!initialData} onClick={handleSubmit}>
+          {initialData ? "Сактоо" : "+ Кошуу"}
+        </AddButton>
+        {initialData && <CancelButton onClick={onClearEdit}>Жок</CancelButton>}
+      </div>
     </FormWrapper>
   );
 };

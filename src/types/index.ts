@@ -1,4 +1,5 @@
 // src/types/index.ts
+// src/types/index.ts
 export interface PatientData {
   id?: string;
   name: string;
@@ -10,6 +11,4 @@ export interface PatientData {
   date: string;
   appointmentDate?: string | Date;
 }
-
-
 // 
