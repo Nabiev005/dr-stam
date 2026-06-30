@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { type PatientData } from '../types';
+
+// --- Толукталган бөлүк: PatientData интерфейсин бул жерде аныктап, экспорттойбуз ---
+export interface PatientData {
+  name: string;
+  phone: string;
+  tooth: string;
+  service: string;
+  price: number;
+  paid: number;
+  date: string;
+  appointmentDate: string;
+}
 
 const FormWrapper = styled.div`
   background: white;
@@ -58,7 +69,6 @@ export const PatientForm = ({ onAdd, onUpdate, initialData, onClearEdit }: Patie
     name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentDate: ''
   });
 
-  // Эгер initialData келсе, форманы толтурабыз
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
@@ -83,7 +93,6 @@ export const PatientForm = ({ onAdd, onUpdate, initialData, onClearEdit }: Patie
       onAdd(formData);
     }
     
-    // Форманы тазалоо
     setFormData({ name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentDate: '' });
   };
 

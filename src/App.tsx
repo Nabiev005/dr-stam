@@ -7,6 +7,7 @@ import { db } from "./firebase";
 import { Sidebar } from './components/Sidebar';
 import { PatientsPage } from './pages/PatientsPage';
 import { HomePage } from './pages/HomePage';
+// Эскертүү: PatientData интерфейсинде id?: string талаасы бар экенин текшериңиз
 import { type PatientData } from './types'; 
 import { CalendarPage } from './pages/CalendarPage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -42,7 +43,6 @@ export function App() {
     try {
       const docRef = await addDoc(collection(db, "patients"), newPatient);
       setPatients(prev => [...prev, { ...newPatient, id: docRef.id }]);
-      alert("Бейтап ийгиликтүү кошулду!");
     } catch (error) {
       console.error("Кошууда ката кетти: ", error);
     }
@@ -65,10 +65,12 @@ export function App() {
     try {
       if (!updatedPatient.id) return;
       const patientDoc = doc(db, "patients", updatedPatient.id);
-      await updateDoc(patientDoc, { ...updatedPatient });
+      
+      // Firestore'го id'сиз маалыматты жөнөтөбүз (id документтин адреси)
+      const { id, ...dataToUpdate } = updatedPatient;
+      await updateDoc(patientDoc, { ...dataToUpdate });
       
       setPatients(prev => prev.map(p => p.id === updatedPatient.id ? updatedPatient : p));
-      alert("Бейтаптын маалыматы ийгиликтүү жаңыланды!");
     } catch (error) {
       console.error("Жаңыртууда ката кетти: ", error);
     }
@@ -81,7 +83,6 @@ export function App() {
         <MainContent>
           <Routes>
             <Route path="/" element={<HomePage patients={patients} />} />
-            
             <Route path="/patients" element={
               <PatientsPage 
                 patients={patients} 
@@ -90,13 +91,11 @@ export function App() {
                 onUpdate={handleUpdatePatient}
               />
             } />
-
             <Route path="/calendar" element={<CalendarPage patients={patients} />} />
             <Route path="/reports" element={<ReportsPage patients={patients} />} />
             <Route path="/debts" element={<DebtsPage patients={patients} />} />
             <Route path="/invoices" element={<BillingPage patients={patients} />} />
             <Route path="/notifications" element={<NotificationsPage patients={patients} />} />
-            <Route path="/settings" element={<h1>⚙️ Орнотуулар бети</h1>} />
           </Routes>
         </MainContent>
       </Container>

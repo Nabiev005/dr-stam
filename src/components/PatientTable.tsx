@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { IoPencilOutline, IoTrashOutline, IoDownloadOutline } from 'react-icons/io5';
 import * as XLSX from 'xlsx';
-import { PatientData } from './PatientForm';
+import { type PatientData } from './PatientForm'; // Эгерде PatientData форманын ичинде экспорттолсо
 
 const TableWrapper = styled.div`
   background: white;
@@ -79,7 +79,7 @@ const EmptyState = styled.div`
 interface PatientTableProps {
   patients: PatientData[];
   onDelete: (id: string) => void;
-  onEdit: (patient: PatientData) => void; // onEdit пропсун коштук
+  onEdit: (patient: PatientData) => void;
 }
 
 export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) => {
@@ -114,8 +114,9 @@ export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) 
             </tr>
           </thead>
           <tbody>
-            {patients.map((p) => (
-              <tr key={p.id}>
+            {patients.map((p, index) => (
+              /* Эгер id жок болсо index колдонобуз, бирок мүмкүн болсо p.id колдонуңуз */
+              <tr key={index}>
                 <Td><strong>{p.name}</strong></Td>
                 <Td>{p.phone}</Td>
                 <Td>{p.tooth}</Td>
@@ -128,11 +129,10 @@ export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) 
                   </DebtCell>
                 </Td>
                 <Td>
-                  {/* Түзөтүү функциясы иштетилди */}
                   <ActionButton onClick={() => onEdit(p)}>
                     <IoPencilOutline size={16} />
                   </ActionButton>
-                  <ActionButton className="delete" onClick={() => onDelete(p.id!)}>
+                  <ActionButton className="delete" onClick={() => onDelete(p.id || String(index))}>
                     <IoTrashOutline size={16} />
                   </ActionButton>
                 </Td>
