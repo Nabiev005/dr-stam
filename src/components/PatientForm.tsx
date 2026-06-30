@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 // --- Толукталган бөлүк: PatientData интерфейсин бул жерде аныктап, экспорттойбуз ---
 export interface PatientData {
+  id?: string; // Firebase'ден келген документтин ID'си
   name: string;
   phone: string;
   tooth: string;
