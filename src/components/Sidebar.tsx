@@ -11,7 +11,7 @@ import {
 export const Sidebar = () => {
   return (
     <SidebarContainer>
-      <Logo>Dr.Stam</Logo>
+      <Logo>🦷 Dr Omurbek</Logo>
       
 
       <MenuItem as={NavLink} to="/" end>
