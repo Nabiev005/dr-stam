@@ -6,9 +6,11 @@ export const SidebarContainer = styled.aside`
   background-color: #0f172a;
   color: white;
   height: 100vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   padding: 20px;
+  flex-shrink: 0;
   transition: width 0.3s ease;
 
   @media (max-width: 768px) {

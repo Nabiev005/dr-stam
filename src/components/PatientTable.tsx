@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import styled from 'styled-components';
-import { IoPencilOutline, IoTrashOutline, IoDownloadOutline } from 'react-icons/io5';
+import { IoPencilOutline, IoTrashOutline, IoDownloadOutline, IoPersonCircleOutline } from 'react-icons/io5';
 import * as XLSX from 'xlsx';
-import { type PatientData } from './PatientForm'; // Эгерде PatientData форманын ичинде экспорттолсо
+import { type PatientData } from '../types';
+import { PatientProfileModal } from './PatientProfileModal';
 
 const TableWrapper = styled.div`
   background: white;
@@ -35,19 +37,19 @@ const StyledTable = styled.table`
   min-width: 800px;
 `;
 
-const Th = styled.th` 
-  text-align: left; 
-  padding: 12px; 
-  border-bottom: 2px solid #f3f4f6; 
-  color: #6b7280; 
-  font-size: 14px; 
+const Th = styled.th`
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid #f3f4f6;
+  color: #6b7280;
+  font-size: 14px;
   white-space: nowrap;
 `;
 
-const Td = styled.td` 
-  padding: 12px; 
-  border-bottom: 1px solid #f3f4f6; 
-  font-size: 14px; 
+const Td = styled.td`
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
 `;
 
 const DebtCell = styled.span<{ amount: number }>`
@@ -68,6 +70,19 @@ const ActionButton = styled.button`
 
   &:hover { background: #e5e7eb; }
   &.delete:hover { background: #fee2e2; color: #ef4444; }
+  &.profile:hover { background: #dbeafe; color: #3b82f6; }
+`;
+
+const NameBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #111827;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline dotted #94a3b8;
+  &:hover { color: #3b82f6; }
 `;
 
 const EmptyState = styled.div`
@@ -76,14 +91,24 @@ const EmptyState = styled.div`
   color: #9ca3af;
 `;
 
+const TimeTag = styled.span`
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 7px;
+  border-radius: 10px;
+`;
+
 interface PatientTableProps {
   patients: PatientData[];
+  allPatients: PatientData[];
   onDelete: (id: string) => void;
   onEdit: (patient: PatientData) => void;
 }
 
-export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) => {
-  
+export const PatientTable = ({ patients, allPatients, onDelete, onEdit }: PatientTableProps) => {
+  const [profilePatient, setProfilePatient] = useState<PatientData | null>(null);
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(patients);
     const workbook = XLSX.utils.book_new();
@@ -110,14 +135,16 @@ export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) 
               <Th>Баасы</Th>
               <Th>Төлөндү</Th>
               <Th>Карыз</Th>
+              <Th>Дата / Убакыт</Th>
               <Th>Аракет</Th>
             </tr>
           </thead>
           <tbody>
-            {patients.map((p, index) => (
-              /* Эгер id жок болсо index колдонобуз, бирок мүмкүн болсо p.id колдонуңуз */
-              <tr key={index}>
-                <Td><strong>{p.name}</strong></Td>
+            {patients.map((p) => (
+              <tr key={p.id}>
+                <Td>
+                  <NameBtn onClick={() => setProfilePatient(p)}>{p.name}</NameBtn>
+                </Td>
                 <Td>{p.phone}</Td>
                 <Td>{p.tooth}</Td>
                 <Td>{p.service}</Td>
@@ -129,10 +156,20 @@ export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) 
                   </DebtCell>
                 </Td>
                 <Td>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    {p.date ? <span style={{ fontSize: '13px' }}>{p.date}</span> : null}
+                    {p.appointmentTime ? <TimeTag>{p.appointmentTime}</TimeTag> : p.time ? <TimeTag>{p.time}</TimeTag> : null}
+                    {!p.date && !p.time && !p.appointmentTime && <span style={{ color: '#d1d5db' }}>—</span>}
+                  </div>
+                </Td>
+                <Td>
+                  <ActionButton className="profile" title="Профиль" onClick={() => setProfilePatient(p)}>
+                    <IoPersonCircleOutline size={16} />
+                  </ActionButton>
                   <ActionButton onClick={() => onEdit(p)}>
                     <IoPencilOutline size={16} />
                   </ActionButton>
-                  <ActionButton className="delete" onClick={() => onDelete(p.id || String(index))}>
+                  <ActionButton className="delete" onClick={() => p.id && onDelete(p.id)}>
                     <IoTrashOutline size={16} />
                   </ActionButton>
                 </Td>
@@ -140,6 +177,14 @@ export const PatientTable = ({ patients, onDelete, onEdit }: PatientTableProps) 
             ))}
           </tbody>
         </StyledTable>
+      )}
+
+      {profilePatient && (
+        <PatientProfileModal
+          patient={profilePatient}
+          allPatients={allPatients}
+          onClose={() => setProfilePatient(null)}
+        />
       )}
     </TableWrapper>
   );

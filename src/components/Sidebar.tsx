@@ -6,15 +6,14 @@ import {
   IoNotificationsOutline, IoSettingsOutline 
 } from 'react-icons/io5';
 
-// MenuItem'ди NavLink катары иштетүү үчүн Styled Component'ти жаңыртышыбыз керек
-// Же болбосо "as={NavLink}" колдонобуз (style кошуп)
+
 
 export const Sidebar = () => {
   return (
     <SidebarContainer>
       <Logo>Dr.Stam</Logo>
       
-      {/* activeStyle сыяктуу стилдерди CSS ичинде .active классы менен башкарабыз */}
+
       <MenuItem as={NavLink} to="/" end>
         <IoHomeOutline size={22} /> <span>Башкы бет</span>
       </MenuItem>

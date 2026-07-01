@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { PatientForm } from '../components/PatientForm';
 import { PatientTable } from '../components/PatientTable';
-import type { PatientData } from '../components/PatientForm'; // Интерфейсти Form'дон алабыз
+import type { PatientData } from '../types';
 
 const PageWrapper = styled.div` padding: 20px; `;
 
@@ -97,10 +97,11 @@ export const PatientsPage = ({ patients, onAdd, onDelete, onUpdate }: PatientsPa
         onClearEdit={() => setEditingPatient(null)} 
       />
       
-      <PatientTable 
-        patients={filteredPatients} 
-        onDelete={onDelete} 
-        onEdit={(p) => setEditingPatient(p)} 
+      <PatientTable
+        patients={filteredPatients}
+        allPatients={patients}
+        onDelete={onDelete}
+        onEdit={(p) => setEditingPatient(p)}
       />
     </PageWrapper>
   );

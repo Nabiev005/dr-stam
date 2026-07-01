@@ -1,5 +1,3 @@
-// src/types/index.ts
-// src/types/index.ts
 export interface PatientData {
   id?: string;
   name: string;
@@ -9,6 +7,7 @@ export interface PatientData {
   price: number;
   paid: number;
   date: string;
-  appointmentDate?: string | Date;
+  time?: string;
+  appointmentTime?: string;
+  appointmentDate?: string;
 }
-// 

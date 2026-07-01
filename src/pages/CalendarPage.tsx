@@ -5,17 +5,9 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import styled from 'styled-components';
 import { type PatientData } from '../types';
 
-// Календарды локализациялоо (Кыргызча/Англисче форматта)
 const locales = { 'en-US': enUS };
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
+const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
-// Заманбап стиль
 const CalendarContainer = styled.div`
   height: 80vh;
   background: white;
@@ -24,14 +16,15 @@ const CalendarContainer = styled.div`
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
 
   .rbc-event {
-    background-color: #3b82f6;
+    background-color: #10b981;
     border-radius: 8px;
-    padding: 5px;
+    padding: 4px 6px;
     font-weight: 500;
+    font-size: 13px;
     transition: transform 0.2s;
   }
-  .rbc-event:hover { transform: scale(1.02); background-color: #2563eb; }
-  .rbc-today { background-color: #eff6ff !important; }
+  .rbc-event:hover { transform: scale(1.02); background-color: #059669; }
+  .rbc-today { background-color: #f0fdf4 !important; }
 `;
 
 interface CalendarPageProps {
@@ -39,33 +32,40 @@ interface CalendarPageProps {
 }
 
 export const CalendarPage = ({ patients }: CalendarPageProps) => {
-  // Бейтаптарды календардык окуяларга (events) айландыруу
   const events = patients
-    .filter((p) => p.appointmentDate) // Датасы барларды гана алабыз
-    .map((p) => {
-      const startDate = new Date(p.appointmentDate as string | Date);
-      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 сааттык кабыл алуу
+    .filter(p => p.date)
+    .map(p => {
+      const startDate = new Date(p.date);
+
+      if (p.appointmentTime) {
+        const [h, m] = p.appointmentTime.split(':').map(Number);
+        startDate.setHours(h, m, 0, 0);
+      }
+
+      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+      const timeLabel = p.appointmentTime ? ` ${p.appointmentTime}` : p.time ? ` (${p.time})` : '';
 
       return {
         id: p.id,
-        title: `👤 ${p.name}`, // Аты жана иконкасы
+        title: `👤 ${p.name}${timeLabel}`,
         start: startDate,
         end: endDate,
-        resource: p.service, // Кызмат түрү
+        resource: p.service,
       };
     });
 
   return (
     <CalendarContainer>
-      <h1 style={{ marginBottom: '20px', color: '#1e293b' }}>🗓 Бейтаптар графиги</h1>
+      <h1 style={{ marginBottom: '20px', color: '#1e293b' }}>Бейтаптар графиги</h1>
       <Calendar
         localizer={localizer}
-        events={events} // Динамикалык бейтаптар тизмеси
+        events={events}
         startAccessor="start"
         endAccessor="end"
         style={{ height: '90%' }}
-        // Окуяны басканда бейтаптын атын жана кызматын көрсөтүү
-        onSelectEvent={(event: any) => alert(`Бейтап: ${event.title}\nКызмат: ${event.resource}`)}
+        onSelectEvent={(event: any) =>
+          alert(`Бейтап: ${event.title}\nКызмат: ${event.resource}`)
+        }
         messages={{
           next: "Кийинки",
           previous: "Мурунку",
@@ -73,14 +73,11 @@ export const CalendarPage = ({ patients }: CalendarPageProps) => {
           month: "Ай",
           week: "Жума",
           day: "Күн",
+          agenda: "Тизме",
+          noEventsInRange: "Бул мезгилде бейтаптар жок.",
         }}
-        // Календар окуяларынын стилин кошумча жөндөө
         eventPropGetter={() => ({
-          style: {
-            backgroundColor: '#3b82f6',
-            borderRadius: '6px',
-            border: 'none',
-          },
+          style: { backgroundColor: '#10b981', borderRadius: '6px', border: 'none' },
         })}
       />
     </CalendarContainer>

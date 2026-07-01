@@ -1,18 +1,6 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-
-// --- Толукталган бөлүк: PatientData интерфейсин бул жерде аныктап, экспорттойбуз ---
-export interface PatientData {
-  id?: string; // Firebase'ден келген документтин ID'си
-  name: string;
-  phone: string;
-  tooth: string;
-  service: string;
-  price: number;
-  paid: number;
-  date: string;
-  appointmentDate: string;
-}
+import { type PatientData } from '../types';
 
 const FormWrapper = styled.div`
   background: white;
@@ -33,7 +21,16 @@ const Input = styled.input`
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   width: 100%;
+  box-sizing: border-box;
   &:focus { outline: none; border-color: #10b981; }
+`;
+
+const Label = styled.label`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b7280;
 `;
 
 const AddButton = styled.button<{ isEdit?: boolean }>`
@@ -65,36 +62,38 @@ interface PatientFormProps {
   onClearEdit?: () => void;
 }
 
+const emptyForm: PatientData = {
+  name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentTime: ''
+};
+
 export const PatientForm = ({ onAdd, onUpdate, initialData, onClearEdit }: PatientFormProps) => {
-  const [formData, setFormData] = useState<PatientData>({
-    name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentDate: ''
-  });
+  const [formData, setFormData] = useState<PatientData>(emptyForm);
 
   useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-    }
+    if (initialData) setFormData(initialData);
   }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'number' ? (value === '' ? 0 : Number(value)) : value 
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'number' ? (value === '' ? 0 : Number(value)) : value
     }));
   };
 
   const handleSubmit = () => {
     if (!formData.name) return alert("Аты-жөнүн жазыңыз!");
-    
+
     if (initialData && onUpdate) {
       onUpdate(formData);
       if (onClearEdit) onClearEdit();
     } else {
-      onAdd(formData);
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      onAdd({ ...formData, time: timeStr });
     }
-    
-    setFormData({ name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentDate: '' });
+
+    setFormData(emptyForm);
   };
 
   return (
@@ -103,16 +102,23 @@ export const PatientForm = ({ onAdd, onUpdate, initialData, onClearEdit }: Patie
       <Input name="phone" value={formData.phone} onChange={handleChange} placeholder="Телефон номери" />
       <Input name="tooth" value={formData.tooth} onChange={handleChange} placeholder="Тиш номери" />
       <Input name="service" value={formData.service} onChange={handleChange} placeholder="Дарылоо себеби" />
-      
-      <Input name="price" type="number" value={formData.price || ''} onChange={handleChange} placeholder="Жалпы баасы" />
-      <Input name="paid" type="number" value={formData.paid || ''} onChange={handleChange} placeholder="Төлөнгөн сумма" />
-      <Input name="date" type="date" value={formData.date} onChange={handleChange} />
-      
-      <div style={{ display: 'flex', gap: '8px' }}>
+
+      <Input name="price" type="number" value={formData.price || ''} onChange={handleChange} placeholder="Жалпы баасы (сом)" />
+      <Input name="paid" type="number" value={formData.paid || ''} onChange={handleChange} placeholder="Төлөнгөн сумма (сом)" />
+      <Label>
+        Дата
+        <Input name="date" type="date" value={formData.date} onChange={handleChange} />
+      </Label>
+      <Label>
+        Кабыл алуу убакыты
+        <Input name="appointmentTime" type="time" value={formData.appointmentTime || ''} onChange={handleChange} />
+      </Label>
+
+      <div style={{ display: 'flex', gap: '8px', gridColumn: '1 / -1' }}>
         <AddButton isEdit={!!initialData} onClick={handleSubmit}>
           {initialData ? "Сактоо" : "+ Кошуу"}
         </AddButton>
-        {initialData && <CancelButton onClick={onClearEdit}>Жок</CancelButton>}
+        {initialData && <CancelButton onClick={onClearEdit}>Жок кылуу</CancelButton>}
       </div>
     </FormWrapper>
   );

@@ -5,30 +5,59 @@ import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase
 import { db } from "./firebase";
 
 import { Sidebar } from './components/Sidebar';
+import { BottomNav } from './components/BottomNav';
 import { PatientsPage } from './pages/PatientsPage';
 import { HomePage } from './pages/HomePage';
-// Эскертүү: PatientData интерфейсинде id?: string талаасы бар экенин текшериңиз
-import { type PatientData } from './types'; 
+import { type PatientData } from './types';
 import { CalendarPage } from './pages/CalendarPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { DebtsPage } from './pages/DebtsPage';
 import { BillingPage } from './pages/BillingPage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { SettingsPage } from './pages/SettingsPage';
 
-const Container = styled.div` display: flex; min-height: 100vh; background-color: #f9fafb; `;
-const MainContent = styled.main` flex: 1; padding: 30px; overflow-y: auto; `;
+const Container = styled.div`
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f9fafb;
+
+  @media (max-width: 768px) {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+`;
+
+const MainContent = styled.main`
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  height: 100%;
+
+  @media (max-width: 768px) {
+    height: auto;
+    padding: 16px 12px;
+    padding-bottom: 80px;
+  }
+`;
+
+const SidebarWrapper = styled.div`
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
 export function App() {
   const [patients, setPatients] = useState<PatientData[]>([]);
 
-  // 1. Firebase'ден маалыматтарды жүктөө
   useEffect(() => {
     const fetchPatients = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "patients"));
-        const patientsList = querySnapshot.docs.map(doc => ({ 
-          id: doc.id, 
-          ...doc.data() 
+        const patientsList = querySnapshot.docs.map(d => ({
+          id: d.id,
+          ...d.data()
         } as PatientData));
         setPatients(patientsList);
       } catch (error) {
@@ -38,7 +67,6 @@ export function App() {
     fetchPatients();
   }, []);
 
-  // 2. Жаңы бейтапты Firebase'ге кошуу
   const handleAddPatient = async (newPatient: PatientData) => {
     try {
       const docRef = await addDoc(collection(db, "patients"), newPatient);
@@ -48,7 +76,6 @@ export function App() {
     }
   };
 
-  // 3. Бейтапты Firebase'ден өчүрүү
   const handleDeletePatient = async (id: string) => {
     if (window.confirm("Бул бейтапты өчүрүүнү каалайсызбы?")) {
       try {
@@ -60,16 +87,12 @@ export function App() {
     }
   };
 
-  // 4. Бейтапты жаңыртуу (Update)
   const handleUpdatePatient = async (updatedPatient: PatientData) => {
     try {
       if (!updatedPatient.id) return;
       const patientDoc = doc(db, "patients", updatedPatient.id);
-      
-      // Firestore'го id'сиз маалыматты жөнөтөбүз (id документтин адреси)
       const { id, ...dataToUpdate } = updatedPatient;
       await updateDoc(patientDoc, { ...dataToUpdate });
-      
       setPatients(prev => prev.map(p => p.id === updatedPatient.id ? updatedPatient : p));
     } catch (error) {
       console.error("Жаңыртууда ката кетти: ", error);
@@ -79,15 +102,17 @@ export function App() {
   return (
     <Router>
       <Container>
-        <Sidebar />
+        <SidebarWrapper>
+          <Sidebar />
+        </SidebarWrapper>
         <MainContent>
           <Routes>
             <Route path="/" element={<HomePage patients={patients} />} />
             <Route path="/patients" element={
-              <PatientsPage 
-                patients={patients} 
-                onAdd={handleAddPatient} 
-                onDelete={handleDeletePatient} 
+              <PatientsPage
+                patients={patients}
+                onAdd={handleAddPatient}
+                onDelete={handleDeletePatient}
                 onUpdate={handleUpdatePatient}
               />
             } />
@@ -96,8 +121,10 @@ export function App() {
             <Route path="/debts" element={<DebtsPage patients={patients} />} />
             <Route path="/invoices" element={<BillingPage patients={patients} />} />
             <Route path="/notifications" element={<NotificationsPage patients={patients} />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </MainContent>
+        <BottomNav />
       </Container>
     </Router>
   );
