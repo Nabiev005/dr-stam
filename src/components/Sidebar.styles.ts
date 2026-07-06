@@ -2,65 +2,118 @@ import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
 export const SidebarContainer = styled.aside`
-  width: 260px;
-  background-color: #0f172a;
+  width: 240px;
+  background: linear-gradient(180deg, #0f172a 0%, #0c1424 100%);
   color: white;
   height: 100vh;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 16px 10px;
   flex-shrink: 0;
-  transition: width 0.3s ease;
+  border-right: 1px solid rgba(255,255,255,0.05);
 
   @media (max-width: 768px) {
-    width: 70px;
-    padding: 20px 10px;
+    width: 68px;
+    padding: 16px 6px;
   }
 `;
 
 export const Logo = styled.div`
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 40px;
-  color: white;
-  padding-left: 5px;
-
-  @media (max-width: 768px) {
-    font-size: 18px;
-    text-align: center;
-    padding-left: 0;
-  }
-`;
-
-// MenuItem'ди NavLink катары иштеши үчүн стилдедик
-export const MenuItem = styled(NavLink)`
-  padding: 12px 15px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  transition: 0.3s;
-  color: #94a3b8; /* Өчүрүлгөн түс */
-  text-decoration: none; /* Ссылканын астындагы сызыкты алып салуу */
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 10px 8px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.07);
 
-  &:hover {
-    background-color: #1e293b;
-    color: white;
+  img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(13,148,136,0.7);
+    background: white;
+    flex-shrink: 0;
   }
 
-  /* Активдүү бет болгондогу стил */
-  &.active {
-    background-color: #1e293b;
-    color: #10b981; /* Жашыл түс менен активдүүлүктү белгилейбиз */
-    border-left: 4px solid #10b981;
-    border-radius: 4px 8px 8px 4px;
+  .logo-text {
+    overflow: hidden;
+  }
+
+  .logo-name {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+  }
+
+  .logo-sub {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
   }
 
   @media (max-width: 768px) {
     justify-content: center;
+    padding: 8px 4px;
+    .logo-text { display: none; }
+    img { width: 38px; height: 38px; }
+  }
+`;
+
+export const NavSection = styled.div`
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #3d5275;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 12px 10px 5px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+export const MenuItem = styled(NavLink)`
+  padding: 10px 12px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  transition: all 0.18s;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+
+  svg { flex-shrink: 0; }
+
+  &:hover {
+    background: rgba(255,255,255,0.07);
+    color: #cbd5e1;
+  }
+
+  &.active {
+    background: linear-gradient(135deg, rgba(13,148,136,0.22), rgba(13,148,136,0.12));
+    color: #2dd4bf;
+    border: 1px solid rgba(13,148,136,0.28);
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    padding: 10px 8px;
     span { display: none; }
   }
+`;
+
+export const SettingsItem = styled(MenuItem)`
+  margin-top: auto;
 `;

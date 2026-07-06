@@ -6,6 +6,7 @@ import { db } from "./firebase";
 
 import { Sidebar } from './components/Sidebar';
 import { BottomNav } from './components/BottomNav';
+import { MobileHeader } from './components/MobileHeader';
 import { PatientsPage } from './pages/PatientsPage';
 import { HomePage } from './pages/HomePage';
 import { type PatientData } from './types';
@@ -20,7 +21,7 @@ const Container = styled.div`
   display: flex;
   height: 100vh;
   overflow: hidden;
-  background-color: #f9fafb;
+  background-color: var(--bg);
 
   @media (max-width: 768px) {
     height: auto;
@@ -37,8 +38,7 @@ const MainContent = styled.main`
 
   @media (max-width: 768px) {
     height: auto;
-    padding: 16px 12px;
-    padding-bottom: 80px;
+    padding: 70px 12px 88px;
   }
 `;
 
@@ -102,6 +102,7 @@ export function App() {
   return (
     <Router>
       <Container>
+        <MobileHeader />
         <SidebarWrapper>
           <Sidebar />
         </SidebarWrapper>

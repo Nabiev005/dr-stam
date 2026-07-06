@@ -1,58 +1,158 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { IoCheckmarkCircle, IoSaveOutline } from 'react-icons/io5';
+import {
+  IoCheckmarkCircle, IoSaveOutline,
+  IoBusinessOutline, IoPersonOutline, IoCallOutline, IoLocationOutline,
+  IoReceiptOutline,
+} from 'react-icons/io5';
 
-const Wrapper = styled.div` padding: 30px; max-width: 600px; `;
+/* ── styles ── */
+
+const Page = styled.div`
+  padding: 28px 24px;
+  max-width: 620px;
+
+  @media (max-width: 768px) {
+    padding: 4px 16px 0;
+  }
+`;
+
+const PageTitle = styled.h1`
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 6px;
+`;
+
+const PageSub = styled.p`
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+`;
 
 const Card = styled.div`
   background: white;
-  padding: 28px;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.06);
-  margin-bottom: 24px;
-  h3 { margin: 0 0 20px; color: #1e293b; }
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 16px;
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid #f1f5f9;
+
+  .icon-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+`;
+
+const CardBody = styled.div`
+  padding: 20px 22px;
 `;
 
 const Field = styled.div`
-  margin-bottom: 16px;
-  label { display: block; font-size: 13px; color: #6b7280; margin-bottom: 6px; }
+  margin-bottom: 14px;
+
+  &:last-of-type { margin-bottom: 0; }
+`;
+
+const FieldLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+
+  svg { color: var(--text-subtle); }
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 11px;
   font-size: 14px;
-  box-sizing: border-box;
-  &:focus { outline: none; border-color: #10b981; }
+  color: var(--text);
+  background: #f8fafc;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.1);
+  }
+
+  &::placeholder { color: var(--text-subtle); }
 `;
 
-const SaveBtn = styled.button`
-  background: #10b981;
-  color: white;
+const SaveBtn = styled.button<{ $saved: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 13px;
+  border-radius: 13px;
   border: none;
-  padding: 11px 24px;
-  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: 0.2s;
-  &:hover { background: #059669; }
+  margin-top: 20px;
+  transition: all 0.2s;
+  background: ${p => p.$saved
+    ? 'linear-gradient(135deg,#10b981,#059669)'
+    : 'linear-gradient(135deg,#0d9488,#0f766e)'};
+  color: white;
+  box-shadow: ${p => p.$saved ? '0 4px 14px rgba(16,185,129,0.4)' : '0 4px 14px rgba(13,148,136,0.3)'};
+
+  &:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  &:active { transform: scale(0.99); }
 `;
 
-const Toast = styled.div`
+const InfoCard = styled.div`
   display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #10b981;
-  font-weight: 600;
-  margin-top: 12px;
-  font-size: 14px;
+  gap: 14px;
+  padding: 20px 22px;
+  background: var(--primary-faint);
+  border-radius: 16px;
+  border: 1px solid var(--primary-light);
+
+  svg { color: var(--primary); flex-shrink: 0; margin-top: 2px; }
+
+  p {
+    font-size: 13.5px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  strong { color: var(--primary); }
 `;
+
+/* ── component ── */
 
 export const SettingsPage = () => {
   const [clinicName,  setClinicName]  = useState(() => localStorage.getItem('clinicName')  || '');
@@ -71,46 +171,76 @@ export const SettingsPage = () => {
   };
 
   return (
-    <Wrapper>
-      <h1 style={{ marginBottom: '24px' }}>Орнотуулар</h1>
+    <Page>
+      <PageTitle>Орнотуулар</PageTitle>
+      <PageSub>Клиника жана квитанция маалыматтары</PageSub>
 
       <Card>
-        <h3>Клиника маалыматтары</h3>
-        <Field>
-          <label>Клиниканын аты</label>
-          <Input value={clinicName} onChange={e => setClinicName(e.target.value)} placeholder="Стоматология клиникасы" />
-        </Field>
-        <Field>
-          <label>Дарыгердин аты-жөнү</label>
-          <Input value={doctorName} onChange={e => setDoctorName(e.target.value)} placeholder="Иванов Иван Иванович" />
-        </Field>
-        <Field>
-          <label>Клиниканын телефону</label>
-          <Input value={clinicPhone} onChange={e => setClinicPhone(e.target.value)} placeholder="+996 700 000 000" />
-        </Field>
-        <Field>
-          <label>Дареги</label>
-          <Input value={address} onChange={e => setAddress(e.target.value)} placeholder="Бишкек, Ленин кеч., 1" />
-        </Field>
+        <CardHeader>
+          <div className="icon-wrap"><IoBusinessOutline size={20} /></div>
+          <h3>Клиника маалыматтары</h3>
+        </CardHeader>
+        <CardBody>
+          <Field>
+            <FieldLabel>
+              <IoBusinessOutline size={13} /> Клиниканын аты
+            </FieldLabel>
+            <Input
+              value={clinicName}
+              onChange={e => setClinicName(e.target.value)}
+              placeholder="Стоматология клиникасы"
+            />
+          </Field>
 
-        <SaveBtn onClick={handleSave}>
-          <IoSaveOutline size={18} /> Сактоо
-        </SaveBtn>
+          <Field>
+            <FieldLabel>
+              <IoPersonOutline size={13} /> Дарыгердин аты-жөнү
+            </FieldLabel>
+            <Input
+              value={doctorName}
+              onChange={e => setDoctorName(e.target.value)}
+              placeholder="Иванов Иван Иванович"
+            />
+          </Field>
 
-        {saved && (
-          <Toast>
-            <IoCheckmarkCircle size={18} /> Маалыматтар сакталды!
-          </Toast>
-        )}
+          <Field>
+            <FieldLabel>
+              <IoCallOutline size={13} /> Телефон номери
+            </FieldLabel>
+            <Input
+              value={clinicPhone}
+              onChange={e => setClinicPhone(e.target.value)}
+              placeholder="+996 700 000 000"
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel>
+              <IoLocationOutline size={13} /> Дарек
+            </FieldLabel>
+            <Input
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              placeholder="Бишкек, Ленин кеч., 1"
+            />
+          </Field>
+
+          <SaveBtn $saved={saved} onClick={handleSave}>
+            {saved
+              ? <><IoCheckmarkCircle size={19} /> Сакталды!</>
+              : <><IoSaveOutline size={19} /> Сактоо</>}
+          </SaveBtn>
+        </CardBody>
       </Card>
 
-      <Card>
-        <h3>Квитанция маалыматтары</h3>
-        <p style={{ margin: 0, color: '#64748b', fontSize: 14, lineHeight: 1.6 }}>
-          Жогорудагы маалыматтар квитанция (PDF) басып чыгарганда автоматтык колдонулат.
-          Клиниканын аты, дарыгердин аты жана телефон номери квитанцияда чыгат.
+      <InfoCard>
+        <IoReceiptOutline size={20} />
+        <p>
+          Жогорудагы маалыматтар <strong>квитанцияда</strong> автоматтык
+          колдонулат — клиниканын аты, дарыгердин аты жана телефон номери
+          ар бир квитанцияда чыгат.
         </p>
-      </Card>
-    </Wrapper>
+      </InfoCard>
+    </Page>
   );
 };

@@ -4,55 +4,87 @@ import { type PatientData } from '../types';
 
 const FormWrapper = styled.div`
   background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  margin-bottom: 24px;
+  padding: 22px 22px 18px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 14px;
 
   @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 600px) { grid-template-columns: 1fr; }
+  @media (max-width: 600px)  { grid-template-columns: 1fr; }
+`;
+
+const Field = styled.label`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  .field-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 `;
 
 const Input = styled.input`
-  padding: 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  padding: 10px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
   width: 100%;
-  box-sizing: border-box;
-  &:focus { outline: none; border-color: #10b981; }
+  font-size: 14px;
+  color: var(--text);
+  background: #f8fafc;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.1);
+  }
+
+  &::placeholder { color: var(--text-subtle); }
 `;
 
-const Label = styled.label`
+const ButtonRow = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
-  color: #6b7280;
+  gap: 10px;
+  grid-column: 1 / -1;
+  padding-top: 2px;
 `;
 
-const AddButton = styled.button<{ isEdit?: boolean }>`
-  background: ${props => props.isEdit ? '#f59e0b' : '#10b981'};
-  color: white;
+const SubmitBtn = styled.button<{ $isEdit: boolean }>`
+  flex: 1;
+  padding: 11px;
+  border-radius: 11px;
   border: none;
-  padding: 10px;
-  border-radius: 6px;
+  font-size: 14.5px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: bold;
-  transition: 0.2s;
-  &:hover { background: ${props => props.isEdit ? '#d97706' : '#059669'}; }
+  transition: background 0.15s, transform 0.12s;
+  background: ${p => p.$isEdit
+    ? 'linear-gradient(135deg,#f59e0b,#d97706)'
+    : 'linear-gradient(135deg,#0d9488,#059669)'};
+  color: white;
+
+  &:hover { filter: brightness(1.07); }
+  &:active { transform: scale(0.98); }
 `;
 
-const CancelButton = styled.button`
-  background: #6b7280;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
+const CancelBtn = styled.button`
+  padding: 11px 20px;
+  border-radius: 11px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
   cursor: pointer;
-  font-weight: bold;
+
+  &:hover { background: #f1f5f9; }
 `;
 
 interface PatientFormProps {
@@ -63,7 +95,7 @@ interface PatientFormProps {
 }
 
 const emptyForm: PatientData = {
-  name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentTime: ''
+  name: '', phone: '', tooth: '', service: '', price: 0, paid: 0, date: '', appointmentTime: '',
 };
 
 export const PatientForm = ({ onAdd, onUpdate, initialData, onClearEdit }: PatientFormProps) => {
@@ -77,49 +109,68 @@ export const PatientForm = ({ onAdd, onUpdate, initialData, onClearEdit }: Patie
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'number' ? (value === '' ? 0 : Number(value)) : value
+      [name]: type === 'number' ? (value === '' ? 0 : Number(value)) : value,
     }));
   };
 
   const handleSubmit = () => {
-    if (!formData.name) return alert("Аты-жөнүн жазыңыз!");
+    if (!formData.name.trim()) return alert('Аты-жөнүн жазыңыз!');
 
-    if (initialData && onUpdate) {
+    if (initialData) {
       onUpdate(formData);
-      if (onClearEdit) onClearEdit();
+      onClearEdit?.();
     } else {
       const now = new Date();
       const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
       onAdd({ ...formData, time: timeStr });
     }
-
     setFormData(emptyForm);
   };
 
   return (
     <FormWrapper>
-      <Input name="name" value={formData.name} onChange={handleChange} placeholder="ФИО (Аты-жөнү)" />
-      <Input name="phone" value={formData.phone} onChange={handleChange} placeholder="Телефон номери" />
-      <Input name="tooth" value={formData.tooth} onChange={handleChange} placeholder="Тиш номери" />
-      <Input name="service" value={formData.service} onChange={handleChange} placeholder="Дарылоо себеби" />
+      <Field>
+        <span className="field-label">Аты-жөнү</span>
+        <Input name="name" value={formData.name} onChange={handleChange} placeholder="Дүйшөн Матанов" />
+      </Field>
+      <Field>
+        <span className="field-label">Телефон</span>
+        <Input name="phone" value={formData.phone} onChange={handleChange} placeholder="+996 700 000 000" />
+      </Field>
+      <Field>
+        <span className="field-label">Тиш номери</span>
+        <Input name="tooth" value={formData.tooth} onChange={handleChange} placeholder="11, 12" />
+      </Field>
+      <Field>
+        <span className="field-label">Дарылоо</span>
+        <Input name="service" value={formData.service} onChange={handleChange} placeholder="Тазалоо, пломба..." />
+      </Field>
 
-      <Input name="price" type="number" value={formData.price || ''} onChange={handleChange} placeholder="Жалпы баасы (сом)" />
-      <Input name="paid" type="number" value={formData.paid || ''} onChange={handleChange} placeholder="Төлөнгөн сумма (сом)" />
-      <Label>
-        Дата
+      <Field>
+        <span className="field-label">Жалпы баасы (с)</span>
+        <Input name="price" type="number" value={formData.price || ''} onChange={handleChange} placeholder="2500" />
+      </Field>
+      <Field>
+        <span className="field-label">Төлөнгөн (с)</span>
+        <Input name="paid" type="number" value={formData.paid || ''} onChange={handleChange} placeholder="2000" />
+      </Field>
+      <Field>
+        <span className="field-label">Дата</span>
         <Input name="date" type="date" value={formData.date} onChange={handleChange} />
-      </Label>
-      <Label>
-        Кабыл алуу убакыты
+      </Field>
+      <Field>
+        <span className="field-label">Кабыл алуу убакыты</span>
         <Input name="appointmentTime" type="time" value={formData.appointmentTime || ''} onChange={handleChange} />
-      </Label>
+      </Field>
 
-      <div style={{ display: 'flex', gap: '8px', gridColumn: '1 / -1' }}>
-        <AddButton isEdit={!!initialData} onClick={handleSubmit}>
-          {initialData ? "Сактоо" : "+ Кошуу"}
-        </AddButton>
-        {initialData && <CancelButton onClick={onClearEdit}>Жок кылуу</CancelButton>}
-      </div>
+      <ButtonRow>
+        <SubmitBtn $isEdit={!!initialData} onClick={handleSubmit}>
+          {initialData ? '✓ Сактоо' : '+ Кошуу'}
+        </SubmitBtn>
+        {initialData && (
+          <CancelBtn onClick={onClearEdit}>Жок кылуу</CancelBtn>
+        )}
+      </ButtonRow>
     </FormWrapper>
   );
 };
